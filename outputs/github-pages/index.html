@@ -56,6 +56,12 @@
       transform: translateY(0);
     }
 
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.52;
+      transform: none;
+    }
+
     .app-shell {
       min-height: 100vh;
       display: grid;
@@ -149,6 +155,11 @@
       align-items: start;
     }
 
+    .workers-layout {
+      display: grid;
+      gap: 16px;
+    }
+
     .panel, .list-panel {
       background: var(--panel);
       border: 1px solid var(--line);
@@ -174,11 +185,36 @@
       padding: 20px 20px 0;
     }
 
+    .list-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .list-toolbar h2 {
+      margin: 0;
+      padding: 0;
+    }
+
+    .selection-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .worker-form-panel[hidden] {
+      display: none;
+    }
+
     .worker-filters {
       display: grid;
       grid-template-columns: minmax(180px, 1fr) minmax(180px, 240px);
       gap: 12px;
-      padding: 0 20px 18px;
+      padding: 18px 20px;
       border-bottom: 1px solid var(--line);
     }
 
@@ -445,6 +481,129 @@
       background: #f7fafd;
     }
 
+    #workersTable th {
+      background: #c9eaf7;
+      color: #526173;
+      text-transform: none;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    #workersTable td {
+      padding: 9px 14px;
+      vertical-align: middle;
+    }
+
+    #workersTable th button {
+      min-height: 0;
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .worker-row.inactive {
+      color: #7a8494;
+      background: #f4f6f9;
+    }
+
+    .worker-row.inactive td:not(.select-cell) {
+      opacity: 0.72;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e8f5fc;
+      color: var(--brand-dark);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .status-pill.inactive {
+      background: #eef1f5;
+      color: #6d7788;
+    }
+
+    .worker-row.selected {
+      background: #edf7fd;
+      box-shadow: inset 4px 0 0 var(--brand);
+    }
+
+    .worker-detail-row td {
+      padding: 0;
+      background: #fbfcfe;
+    }
+
+    .worker-detail-panel {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 18px 16px 126px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .worker-detail-title {
+      min-width: 124px;
+      color: #56637a;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .select-cell {
+      width: 54px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .worker-select {
+      width: 18px;
+      min-height: 18px;
+      accent-color: var(--brand);
+      cursor: pointer;
+    }
+
+    .worker-code {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .legacy-worker-actions {
+      display: none;
+    }
+
+    .worker-row > td:last-child {
+      display: none;
+    }
+
+    .expand-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      display: inline-grid;
+      place-items: center;
+      border: 1px solid rgba(37, 143, 208, 0.28);
+      background: var(--soft);
+      color: var(--brand-dark);
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .expand-btn[aria-expanded="true"] {
+      background: var(--brand);
+      color: #ffffff;
+    }
+
     .table-actions {
       display: flex;
       gap: 8px;
@@ -480,11 +639,13 @@
       align-items: center;
       min-height: 26px;
       padding: 3px 8px;
-      border-radius: 999px;
-      background: var(--soft);
+      border-radius: 8px;
+      background: #fbfcfe;
+      border: 1px solid rgba(37, 143, 208, 0.22);
       color: var(--brand-dark);
       font-size: 12px;
       font-weight: 700;
+      box-shadow: 0 4px 12px rgba(35, 66, 103, 0.06);
     }
 
     .empty {
@@ -622,6 +783,19 @@
         grid-template-columns: 1fr;
       }
 
+      .list-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .selection-actions {
+        justify-content: stretch;
+      }
+
+      .selection-actions button {
+        flex: 1;
+      }
+
       .schedule-hero {
         grid-template-columns: 1fr;
       }
@@ -738,29 +912,17 @@
       </section>
 
       <section id="workersView" class="view" aria-labelledby="workersTitle">
-        <div class="layout">
-          <div class="panel">
-            <h2 id="workersTitle">Cadastro de obreiros</h2>
-            <form id="workerForm">
-              <input id="workerId" type="hidden" />
-              <label>
-                Nome completo
-                <input id="workerName" type="text" autocomplete="name" required />
-              </label>
-              <div>
-                <label>Tarefas que pode fazer</label>
-                <div id="workerTaskOptions" class="checkbox-grid"></div>
-              </div>
-              <div class="message" id="workerMessage" aria-live="polite"></div>
-              <div class="actions">
-                <button class="primary" type="submit">Salvar obreiro</button>
-                <button class="ghost" id="cancelWorkerEdit" type="button">Cancelar</button>
-              </div>
-            </form>
-          </div>
-
+        <div class="workers-layout">
           <div class="list-panel">
-            <h2>Obreiros cadastrados</h2>
+            <div class="list-toolbar">
+              <h2 id="workersTitle">Obreiros cadastrados</h2>
+              <div class="selection-actions">
+                <button class="primary" id="addWorker" type="button">Incluir</button>
+                <button class="secondary" id="editSelectedWorker" type="button" disabled>Alterar</button>
+                <button class="secondary" id="toggleSelectedWorker" type="button" disabled>Inativar</button>
+                <button class="danger" id="deleteSelectedWorker" type="button" disabled>Excluir</button>
+              </div>
+            </div>
             <div class="worker-filters">
               <label>
                 Buscar por nome
@@ -775,6 +937,30 @@
             </div>
             <p id="workerResults" class="worker-results"></p>
             <div id="workersTable"></div>
+          </div>
+
+          <div class="panel worker-form-panel" id="workerFormPanel" hidden>
+            <h2 id="workerFormTitle">Incluir obreiro</h2>
+            <form id="workerForm">
+              <input id="workerId" type="hidden" />
+              <label>
+                Nome completo
+                <input id="workerName" type="text" autocomplete="name" required />
+              </label>
+              <label>
+                Celular
+                <input id="workerPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ex.: (11) 99999-9999" />
+              </label>
+              <div>
+                <label>Tarefas que pode fazer</label>
+                <div id="workerTaskOptions" class="checkbox-grid"></div>
+              </div>
+              <div class="message" id="workerMessage" aria-live="polite"></div>
+              <div class="actions">
+                <button class="primary" type="submit">Salvar obreiro</button>
+                <button class="ghost" id="cancelWorkerEdit" type="button">Cancelar</button>
+              </div>
+            </form>
           </div>
         </div>
       </section>
@@ -823,6 +1009,9 @@
     };
 
     let state = loadState();
+    let selectedWorkerId = '';
+    let expandedWorkerId = '';
+    let workerSort = { field: 'code', direction: 'asc' };
 
     const elements = {
       tabs: document.querySelectorAll('.tab-button'),
@@ -836,8 +1025,15 @@
       workerForm: document.getElementById('workerForm'),
       workerId: document.getElementById('workerId'),
       workerName: document.getElementById('workerName'),
+      workerPhone: document.getElementById('workerPhone'),
       workerMessage: document.getElementById('workerMessage'),
       workerTaskOptions: document.getElementById('workerTaskOptions'),
+      workerFormPanel: document.getElementById('workerFormPanel'),
+      workerFormTitle: document.getElementById('workerFormTitle'),
+      addWorker: document.getElementById('addWorker'),
+      editSelectedWorker: document.getElementById('editSelectedWorker'),
+      toggleSelectedWorker: document.getElementById('toggleSelectedWorker'),
+      deleteSelectedWorker: document.getElementById('deleteSelectedWorker'),
       workerFilterName: document.getElementById('workerFilterName'),
       workerFilterTask: document.getElementById('workerFilterTask'),
       workerResults: document.getElementById('workerResults'),
@@ -863,7 +1059,7 @@
         const parsed = JSON.parse(saved);
         return {
           tasks: Array.isArray(parsed.tasks) ? parsed.tasks : defaultState.tasks,
-          workers: Array.isArray(parsed.workers) ? parsed.workers : [],
+          workers: normalizeWorkers(Array.isArray(parsed.workers) ? parsed.workers : []),
           schedules: parsed.schedules && typeof parsed.schedules === 'object' ? parsed.schedules : {}
         };
       } catch {
@@ -904,7 +1100,7 @@
 
       const importedState = rawState.state && typeof rawState.state === 'object' ? rawState.state : rawState;
       const tasks = Array.isArray(importedState.tasks) ? importedState.tasks : null;
-      const workers = Array.isArray(importedState.workers) ? importedState.workers : null;
+      const workers = Array.isArray(importedState.workers) ? normalizeWorkers(importedState.workers) : null;
       const schedules = importedState.schedules && typeof importedState.schedules === 'object'
         ? importedState.schedules
         : null;
@@ -914,6 +1110,14 @@
       }
 
       return { tasks, workers, schedules };
+    }
+
+    function normalizeWorkers(workers) {
+      return workers.map(worker => ({
+        ...worker,
+        phone: typeof worker.phone === 'string' ? worker.phone : '',
+        active: worker.active !== false
+      }));
     }
 
     async function importBackupFile(file) {
@@ -944,6 +1148,39 @@
 
     function displayName(value) {
       return value.trim().replace(/\s+/g, ' ');
+    }
+
+    function workerCode(worker) {
+      const index = state.workers.findIndex(item => item.id === worker.id);
+      return `OB${String(index + 1).padStart(3, '0')}`;
+    }
+
+    function isWorkerActive(worker) {
+      return worker?.active !== false;
+    }
+
+    function activeWorkers() {
+      return state.workers.filter(isWorkerActive);
+    }
+
+    function workerSortValue(worker, field) {
+      if (field === 'code') return state.workers.findIndex(item => item.id === worker.id);
+      if (field === 'phone') return normalizeName(worker.phone || '');
+      return normalizeName(worker.name || '');
+    }
+
+    function compareWorkersByCurrentSort(a, b) {
+      const first = workerSortValue(a, workerSort.field);
+      const second = workerSortValue(b, workerSort.field);
+      const result = typeof first === 'number'
+        ? first - second
+        : String(first).localeCompare(String(second), 'pt-BR');
+      return workerSort.direction === 'asc' ? result : -result;
+    }
+
+    function sortIndicator(field) {
+      if (workerSort.field !== field) return '';
+      return workerSort.direction === 'asc' ? ' ↑' : ' ↓';
     }
 
     function setMessage(target, text) {
@@ -1046,6 +1283,10 @@
     }
 
     function renderWorkers() {
+      if (selectedWorkerId && !state.workers.some(worker => worker.id === selectedWorkerId)) {
+        selectedWorkerId = '';
+      }
+
       const selectedTask = elements.workerFilterTask.value;
       elements.workerFilterTask.innerHTML = `
         <option value="">Todas as tarefas</option>
@@ -1056,6 +1297,9 @@
       }
 
       if (!state.workers.length) {
+        selectedWorkerId = '';
+        expandedWorkerId = '';
+        updateWorkerSelectionButtons();
         elements.workerResults.textContent = '0 obreiros';
         elements.workersTable.innerHTML = '<div class="empty">Nenhum obreiro cadastrado.</div>';
         return;
@@ -1066,29 +1310,57 @@
       const filteredWorkers = state.workers
         .filter(worker => !nameFilter || normalizeName(worker.name).includes(nameFilter))
         .filter(worker => !taskFilter || worker.taskIds.includes(taskFilter))
-        .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+        .sort(compareWorkersByCurrentSort);
 
       elements.workerResults.textContent = filteredWorkers.length === state.workers.length
         ? `${state.workers.length} obreiro${state.workers.length === 1 ? '' : 's'}`
         : `${filteredWorkers.length} de ${state.workers.length} obreiros`;
 
       if (!filteredWorkers.length) {
+        updateWorkerSelectionButtons();
         elements.workersTable.innerHTML = '<div class="empty">Nenhum obreiro encontrado com estes filtros.</div>';
         return;
       }
 
+      if (selectedWorkerId && !filteredWorkers.some(worker => worker.id === selectedWorkerId)) {
+        selectedWorkerId = '';
+      }
+      if (expandedWorkerId && !filteredWorkers.some(worker => worker.id === expandedWorkerId)) {
+        expandedWorkerId = '';
+      }
+      updateWorkerSelectionButtons();
+
       elements.workersTable.innerHTML = `
         <table>
-          <thead><tr><th>Nome</th><th>Tarefas</th><th></th></tr></thead>
+          <thead>
+            <tr>
+              <th class="select-cell">Selecionar</th>
+              <th><button type="button" data-sort-workers="code">Codigo${sortIndicator('code')}</button></th>
+              <th><button type="button" data-sort-workers="name">Nome${sortIndicator('name')}</button></th>
+              <th><button type="button" data-sort-workers="phone">Celular${sortIndicator('phone')}</button></th>
+              <th>Status</th>
+              <th class="select-cell">Acoes</th>
+            </tr>
+          </thead>
           <tbody>
             ${filteredWorkers.map(worker => {
               const taskNames = worker.taskIds
                 .map(id => state.tasks.find(task => task.id === id)?.name)
                 .filter(Boolean);
+              const isExpanded = expandedWorkerId === worker.id;
+              const active = isWorkerActive(worker);
               return `
-                <tr>
+                <tr class="worker-row ${selectedWorkerId === worker.id ? 'selected' : ''} ${active ? '' : 'inactive'}">
+                  <td class="select-cell">
+                    <input class="worker-select" type="checkbox" aria-label="Selecionar ${escapeHtml(worker.name)}" data-select-worker="${worker.id}" ${selectedWorkerId === worker.id ? 'checked' : ''} />
+                  </td>
+                  <td class="worker-code">${workerCode(worker)}</td>
                   <td>${escapeHtml(worker.name)}</td>
-                  <td><div class="tag-list">${taskNames.map(name => `<span class="tag">${escapeHtml(name)}</span>`).join('') || '<span class="help">Sem tarefas</span>'}</div></td>
+                  <td>${escapeHtml(worker.phone || '')}</td>
+                  <td><span class="status-pill ${active ? '' : 'inactive'}">${active ? 'Ativo' : 'Inativo'}</span></td>
+                  <td class="select-cell">
+                    <button class="expand-btn" type="button" title="Ver tarefas" aria-expanded="${isExpanded}" data-toggle-worker-tasks="${worker.id}">${isExpanded ? '-' : '+'}</button>
+                  </td>
                   <td>
                     <div class="table-actions">
                       <button class="icon-btn" type="button" title="Editar" data-edit-worker="${worker.id}">✎</button>
@@ -1096,11 +1368,30 @@
                     </div>
                   </td>
                 </tr>
+                ${isExpanded ? `
+                  <tr class="worker-detail-row">
+                    <td colspan="7">
+                      <div class="worker-detail-panel">
+                        <div class="worker-detail-title">Tarefas</div>
+                        <div class="tag-list">${taskNames.map(name => `<span class="tag">${escapeHtml(name)}</span>`).join('') || '<span class="help">Sem tarefas</span>'}</div>
+                      </div>
+                    </td>
+                  </tr>
+                ` : ''}
               `;
             }).join('')}
           </tbody>
         </table>
       `;
+    }
+
+    function updateWorkerSelectionButtons() {
+      const selectedWorker = state.workers.find(worker => worker.id === selectedWorkerId);
+      const hasSelection = Boolean(selectedWorker);
+      elements.editSelectedWorker.disabled = !hasSelection;
+      elements.toggleSelectedWorker.disabled = !hasSelection;
+      elements.toggleSelectedWorker.textContent = selectedWorker && !isWorkerActive(selectedWorker) ? 'Ativar' : 'Inativar';
+      elements.deleteSelectedWorker.disabled = !hasSelection;
     }
 
     function resetTaskForm() {
@@ -1112,10 +1403,19 @@
     function resetWorkerForm() {
       elements.workerId.value = '';
       elements.workerName.value = '';
+      elements.workerPhone.value = '';
       elements.workerTaskOptions.querySelectorAll('input[type="checkbox"]').forEach(input => {
         input.checked = false;
       });
       setMessage(elements.workerMessage, '');
+      elements.workerFormPanel.hidden = true;
+      elements.workerFormTitle.textContent = 'Incluir obreiro';
+    }
+
+    function openWorkerForm(mode = 'create') {
+      elements.workerFormPanel.hidden = false;
+      elements.workerFormTitle.textContent = mode === 'edit' ? 'Alterar obreiro' : 'Incluir obreiro';
+      elements.workerName.focus();
     }
 
     function saveTask(event) {
@@ -1180,6 +1480,7 @@
       event.preventDefault();
       const id = elements.workerId.value;
       const name = displayName(elements.workerName.value);
+      const phone = displayName(elements.workerPhone.value);
       const selectedTaskIds = [...elements.workerTaskOptions.querySelectorAll('input[type="checkbox"]:checked')].map(input => input.value);
 
       if (!name) {
@@ -1202,26 +1503,31 @@
         const worker = state.workers.find(item => item.id === id);
         if (worker) {
           worker.name = name;
+          worker.phone = phone;
           worker.taskIds = selectedTaskIds;
+          worker.active = isWorkerActive(worker);
         }
       } else {
-        state.workers.push({ id: crypto.randomUUID(), name, taskIds: selectedTaskIds });
+        state.workers.push({ id: crypto.randomUUID(), name, phone, taskIds: selectedTaskIds, active: true });
       }
 
       saveState();
       resetWorkerForm();
+      selectedWorkerId = '';
       renderAll();
     }
 
     function editWorker(id) {
       const worker = state.workers.find(item => item.id === id);
       if (!worker) return;
+      selectedWorkerId = worker.id;
       elements.workerId.value = worker.id;
       elements.workerName.value = worker.name;
+      elements.workerPhone.value = worker.phone || '';
       elements.workerTaskOptions.querySelectorAll('input[type="checkbox"]').forEach(input => {
         input.checked = worker.taskIds.includes(input.value);
       });
-      elements.workerName.focus();
+      openWorkerForm('edit');
     }
 
     function deleteWorker(id) {
@@ -1232,13 +1538,37 @@
           if (schedule[key] === id) schedule[key] = '';
         });
       });
+      if (selectedWorkerId === id) selectedWorkerId = '';
+      saveState();
+      resetWorkerForm();
+      renderAll();
+    }
+
+    function removeWorkerFromSchedules(workerId) {
+      Object.values(state.schedules).forEach(schedule => {
+        Object.keys(schedule).forEach(key => {
+          if (schedule[key] === workerId) schedule[key] = '';
+        });
+      });
+    }
+
+    function toggleWorkerActive(id) {
+      const worker = state.workers.find(item => item.id === id);
+      if (!worker) return;
+      const willActivate = !isWorkerActive(worker);
+      if (!willActivate) {
+        const confirmed = confirm('Inativar este obreiro? Ele sera removido das escalas ja montadas e nao sera considerado nas proximas montagens.');
+        if (!confirmed) return;
+        removeWorkerFromSchedules(worker.id);
+      }
+      worker.active = willActivate;
       saveState();
       renderAll();
     }
 
     function eligibleWorkers(taskId) {
       return state.workers
-        .filter(worker => worker.taskIds.includes(taskId))
+        .filter(worker => isWorkerActive(worker) && worker.taskIds.includes(taskId))
         .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
     }
 
@@ -1268,7 +1598,7 @@
     }
 
     function findWorkerByFirstName(firstName) {
-      return state.workers.find(worker => workerMatchesFirstName(worker, firstName));
+      return activeWorkers().find(worker => workerMatchesFirstName(worker, firstName));
     }
 
     function getJoaoPriority(worker) {
@@ -1338,10 +1668,11 @@
       const year = Number(elements.startYear.value);
       const sundays = getSundaysForTwoMonths(month, year);
       const schedule = {};
-      const assignedCount = new Map(state.workers.map(worker => [worker.id, 0]));
+      const availableWorkers = activeWorkers();
+      const assignedCount = new Map(availableWorkers.map(worker => [worker.id, 0]));
       const assignedByTask = new Map(state.tasks.map(task => [
         task.id,
-        new Map(state.workers.map(worker => [worker.id, 0]))
+        new Map(availableWorkers.map(worker => [worker.id, 0]))
       ]));
       const lastTaskByWorker = new Map();
       const messageSequence = ['marcos', 'joao', 'andre', 'anderson', 'donizeti', 'persio'];
@@ -1389,12 +1720,12 @@
           }
 
           if (!chosen) {
-            const emergencyCandidates = state.workers
+            const emergencyCandidates = availableWorkers
               .filter(worker => !usedOnDate.has(worker.id))
               .sort((a, b) =>
                 compareWorkersForTask(a, b, task.id, assignedCount, assignedByTask, lastTaskByWorker)
               );
-            const repeatedCandidates = [...state.workers].sort((a, b) =>
+            const repeatedCandidates = [...availableWorkers].sort((a, b) =>
               compareWorkersForTask(a, b, task.id, assignedCount, assignedByTask, lastTaskByWorker)
             );
             chosen = emergencyCandidates[0] || repeatedCandidates[0];
@@ -1410,12 +1741,12 @@
               .sort((a, b) =>
                 compareWorkersForTask(a, b, task.id, assignedCount, assignedByTask, lastTaskByWorker)
               );
-            const secondEmergency = state.workers
+            const secondEmergency = availableWorkers
               .filter(worker => !usedOnDate.has(worker.id))
               .sort((a, b) =>
                 compareWorkersForTask(a, b, task.id, assignedCount, assignedByTask, lastTaskByWorker)
               );
-            const secondRepeated = [...state.workers]
+            const secondRepeated = [...availableWorkers]
               .filter(worker => worker.id !== chosen?.id)
               .sort((a, b) =>
                 compareWorkersForTask(a, b, task.id, assignedCount, assignedByTask, lastTaskByWorker)
@@ -1673,6 +2004,12 @@
       const key = getScheduleKey();
       state.schedules[key] = state.schedules[key] || {};
       const [selectedDate] = cellKey.split('|');
+      const selectedWorker = state.workers.find(worker => worker.id === workerId);
+      if (workerId && !isWorkerActive(selectedWorker)) {
+        alert('Este obreiro esta inativo e nao pode ser atribuido na escala.');
+        renderSchedule();
+        return;
+      }
       const alreadyAssigned = workerId && Object.entries(state.schedules[key]).some(([otherCellKey, otherWorkerId]) =>
         otherCellKey !== cellKey &&
         otherCellKey.startsWith(`${selectedDate}|`) &&
@@ -1696,7 +2033,7 @@
 
       elements.scheduleFilterWorker.innerHTML = `
         <option value="">Todos os obreiros</option>
-        ${[...state.workers]
+        ${activeWorkers()
           .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
           .map(worker => `<option value="${worker.id}">${escapeHtml(worker.name)}</option>`)
           .join('')}
@@ -1708,7 +2045,7 @@
           .join('')}
       `;
 
-      if (state.workers.some(worker => worker.id === selectedWorker)) {
+      if (activeWorkers().some(worker => worker.id === selectedWorker)) {
         elements.scheduleFilterWorker.value = selectedWorker;
       }
       if (state.tasks.some(task => task.id === selectedTask)) {
@@ -1733,7 +2070,15 @@
             }
           });
         });
-      if (removedLegacyOfferAssignments) saveState();
+      let removedInactiveAssignments = false;
+      Object.keys(schedule).forEach(cellKey => {
+        const worker = state.workers.find(item => item.id === schedule[cellKey]);
+        if (schedule[cellKey] && !isWorkerActive(worker)) {
+          schedule[cellKey] = '';
+          removedInactiveAssignments = true;
+        }
+      });
+      if (removedLegacyOfferAssignments || removedInactiveAssignments) saveState();
       renderScheduleFilters();
 
       if (!state.tasks.length) {
@@ -1827,6 +2172,21 @@
     elements.workerForm.addEventListener('submit', saveWorker);
     elements.cancelTaskEdit.addEventListener('click', resetTaskForm);
     elements.cancelWorkerEdit.addEventListener('click', resetWorkerForm);
+    elements.addWorker.addEventListener('click', () => {
+      selectedWorkerId = '';
+      updateWorkerSelectionButtons();
+      resetWorkerForm();
+      openWorkerForm('create');
+    });
+    elements.editSelectedWorker.addEventListener('click', () => {
+      if (selectedWorkerId) editWorker(selectedWorkerId);
+    });
+    elements.toggleSelectedWorker.addEventListener('click', () => {
+      if (selectedWorkerId) toggleWorkerActive(selectedWorkerId);
+    });
+    elements.deleteSelectedWorker.addEventListener('click', () => {
+      if (selectedWorkerId) deleteWorker(selectedWorkerId);
+    });
     elements.generateSchedule.addEventListener('click', generateSchedule);
     elements.exportSchedule.addEventListener('click', exportScheduleToExcel);
     elements.exportBackup.addEventListener('click', exportBackup);
@@ -1839,6 +2199,28 @@
     elements.scheduleFilterTask.addEventListener('change', renderSchedule);
     elements.workerFilterName.addEventListener('input', renderWorkers);
     elements.workerFilterTask.addEventListener('change', renderWorkers);
+    elements.workersTable.addEventListener('change', event => {
+      if (!event.target.matches('input[data-select-worker]')) return;
+      selectedWorkerId = event.target.checked ? event.target.dataset.selectWorker : '';
+      renderWorkers();
+    });
+    elements.workersTable.addEventListener('click', event => {
+      const sortButton = event.target.closest('[data-sort-workers]');
+      if (sortButton) {
+        const field = sortButton.dataset.sortWorkers;
+        workerSort = {
+          field,
+          direction: workerSort.field === field && workerSort.direction === 'asc' ? 'desc' : 'asc'
+        };
+        renderWorkers();
+        return;
+      }
+      const toggleButton = event.target.closest('[data-toggle-worker-tasks]');
+      if (!toggleButton) return;
+      const workerId = toggleButton.dataset.toggleWorkerTasks;
+      expandedWorkerId = expandedWorkerId === workerId ? '' : workerId;
+      renderWorkers();
+    });
 
     document.addEventListener('click', event => {
       const editTaskId = event.target.dataset.editTask;
