@@ -1,11 +1,11 @@
-const CACHE_NAME = 'escala-culto-v1';
+const CACHE_NAME = 'escala-culto-v2';
 const LOCAL_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './assets/biblia-mateus-3-16.png',
-  './assets/icon-192.png',
-  './assets/icon-512.png'
+  './assets/icon-192-v2.png',
+  './assets/icon-512-v2.png'
 ];
 
 self.addEventListener('install', event => {
